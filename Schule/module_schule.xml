@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_schule" default="compile.module.schule">
+  <dirname property="module.schule.basedir" file="${ant.file.module_schule}"/>
+  
+  <property name="module.jdk.home.schule" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.schule" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.schule" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.schule" value="-encoding UTF-8 -source 9 -target 9 ${compiler.args}"/>
+  
+  <property name="schule.output.dir" value="${module.schule.basedir}/out/production/Schule"/>
+  <property name="schule.testoutput.dir" value="${module.schule.basedir}/out/test/Schule"/>
+  
+  <path id="schule.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="schule.module.production.classpath">
+    <path refid="${module.jdk.classpath.schule}"/>
+  </path>
+  
+  <path id="schule.runtime.production.module.classpath">
+    <pathelement location="${schule.output.dir}"/>
+  </path>
+  
+  <path id="schule.module.classpath">
+    <path refid="${module.jdk.classpath.schule}"/>
+    <pathelement location="${schule.output.dir}"/>
+  </path>
+  
+  <path id="schule.runtime.module.classpath">
+    <pathelement location="${schule.testoutput.dir}"/>
+    <pathelement location="${schule.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.schule">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.schule">
+    <patternset refid="excluded.from.module.schule"/>
+  </patternset>
+  
+  <path id="schule.module.sourcepath">
+    <dirset dir="${module.schule.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.schule" depends="compile.module.schule.production,compile.module.schule.tests" description="Compile module Schule"/>
+  
+  <target name="compile.module.schule.production" depends="register.custom.compilers" description="Compile module Schule; production classes">
+    <mkdir dir="${schule.output.dir}"/>
+    <javac2 destdir="${schule.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.schule}/javac">
+      <compilerarg line="${compiler.args.schule}"/>
+      <bootclasspath refid="schule.module.bootclasspath"/>
+      <classpath refid="schule.module.production.classpath"/>
+      <src refid="schule.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.schule"/>
+    </javac2>
+    
+    <copy todir="${schule.output.dir}">
+      <fileset dir="${module.schule.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.schule.tests" depends="register.custom.compilers,compile.module.schule.production" description="compile module Schule; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.schule" description="cleanup module">
+    <delete dir="${schule.output.dir}"/>
+    <delete dir="${schule.testoutput.dir}"/>
+  </target>
+</project>
