@@ -14,7 +14,7 @@ public class cmdPing implements Command {
     @Override
     public void action(String[] args, MessageReceivedEvent event) {
 
-        if (permsCore.check(event) == 2) {
+        if (permsCore.check(event) < 2) {
             return;
         }
 

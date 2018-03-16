@@ -22,7 +22,7 @@ public class readyListener extends ListenerAdapter{
             ).queue();
         }
 
-
+        commands.cmdAutochannel.load(event.getJDA());
         commands.cmdVote.loadPolls(event.getJDA());
 
 

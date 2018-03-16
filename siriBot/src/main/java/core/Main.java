@@ -49,8 +49,9 @@ public class Main {
         commandHandler.commands.put("ping", new cmdPing());
         commandHandler.commands.put("say", new cmdSay());
         commandHandler.commands.put("clear", new cmdClear());
+        commandHandler.commands.put("emote", new cmdFun());
+        commandHandler.commands.put("autochan", new cmdAutochannel());
         commandHandlerPrivate.commands.put("msg", new cmdMsg());
-
 
     }
 
@@ -62,6 +63,7 @@ public class Main {
         builder.addEventListener(new onReconnect());
         builder.addEventListener(new guildListener());
         builder.addEventListener(new messageListener());
+        builder.addEventListener(new autochannelListener());
     }
 
 }

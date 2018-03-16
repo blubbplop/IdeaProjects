@@ -28,7 +28,7 @@ public class cmdSay implements Command{
             return;
         }
 
-        String out = ":postal_horn: ";
+        String out = ":telephone_receiver: ";
         for (String s : args) {
             out += s + " ";
         }

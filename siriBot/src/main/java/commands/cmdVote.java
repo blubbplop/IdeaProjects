@@ -79,8 +79,7 @@ public class cmdVote implements Command, Serializable{
 
     private void createPoll(String[] args, MessageReceivedEvent event) {
 
-        if(polls.containsKey(event.getGuild())) {
-
+        if (polls.containsKey(event.getGuild())) {
             message("Es gibt schon eine Abstimmung auf diesem Server!", Color.RED);
             return;
         }
@@ -144,7 +143,6 @@ public class cmdVote implements Command, Serializable{
     private void closeVote(MessageReceivedEvent event) {
 
         if(!polls.containsKey(event.getGuild())) {
-
             message("Es wurde keine Abstimmung zum schließen erstellt!", Color.RED);
             return;
         }
@@ -152,7 +150,7 @@ public class cmdVote implements Command, Serializable{
         Guild g = event.getGuild();
         Poll poll = polls.get(g);
 
-        if (!poll.getCreator(g).equals(event.getMember()) || permsCore.check(event) == 0 || permsCore.check(event) == 1) {
+        if (!poll.getCreator(g).equals(event.getMember()) && permsCore.check(event) < 2) {
             message("Nur der Ersteller der Abstimmung (" + poll.getCreator(g).getAsMention() + ") oder eine befugte Person kann die Abstimmung schließen.", Color.RED);
             return;
         }
@@ -160,6 +158,9 @@ public class cmdVote implements Command, Serializable{
         polls.remove(g);
         channel.sendMessage(getParsedPoll(poll, g).build()).queue();
         message("Abstimmung von " + event.getAuthor().getAsMention() + " geschlossen.", new Color(0xFF7000));
+
+        File file = new File("SERVER_SETTINGS/" + g.getId() + "/vote.dat");
+        file.delete();
 
     }
 
@@ -247,10 +248,14 @@ public class cmdVote implements Command, Serializable{
             case "close":
                 closeVote(event);
                 break;
-            default:
-                help();
-                return;
 
+            case "help":
+                message(help(), Color.BLACK);
+                break;
+
+            default:
+                message(help(), Color.BLACK);
+                break;
         }
 
         polls.forEach((g, poll) -> {
