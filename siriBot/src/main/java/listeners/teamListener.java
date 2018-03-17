@@ -1,6 +1,7 @@
 package listeners;
 
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.channel.voice.VoiceChannelDeleteEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
@@ -19,44 +20,41 @@ public class teamListener extends ListenerAdapter{
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
 
         HashMap<VoiceChannel, Guild> teamchans = commands.cmdTeam.getTeamchannels();
-        VoiceChannel vc = event.getChannelJoined();
+        HashMap<User, VoiceChannel> teams = commands.cmdTeam.getTeams();
         Guild g = event.getGuild();
+        User user = event.getMember().getUser();
+        VoiceChannel vc = teams.get(user);
 
-        if (teamchans.containsKey(vc)) {
-
-            VoiceChannel nvc = (VoiceChannel) g.getController().createVoiceChannel(vc.getName() + " [TEMP] ")
-                    .setBitrate(vc.getBitrate())
-                    .setUserlimit(vc.getUserLimit())
-                    .complete();
-
-            if (vc.getParent() != null)
-                nvc.getManager().setParent(vc.getParent()).queue();
-
-            g.getController().modifyVoiceChannelPositions().selectPosition(nvc).moveTo(vc.getPosition() + 1).queue();
-            g.getController().moveVoiceMember(event.getMember(), nvc).queue();
-            active.add(nvc);
+        if (teams.get(user) != event.getChannelJoined() && teams.containsKey(user)) {
+            if (teamchans.containsKey(teams.get(user)))
+                g.getController().moveVoiceMember(event.getMember(), vc).queue();
+            else {
+                System.out.println("[ERROR] Der Channel existiert nicht mehr.");
+                active.remove(vc);
+                teamchans.remove(vc);
+                teams.remove(user);
+            }
         }
     }
 
     public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
 
-        HashMap<VoiceChannel, Guild> autochans = commands.cmdAutochannel.getAutochannels();
+        HashMap<VoiceChannel, Guild> teamchans = commands.cmdTeam.getTeamchannels();
+        HashMap<User, VoiceChannel> teams = commands.cmdTeam.getTeams();
         Guild g = event.getGuild();
-        VoiceChannel vc = event.getChannelJoined();
+        User user = event.getMember().getUser();
+        VoiceChannel vc = teams.get(user);
 
-        if (autochans.containsKey(vc)) {
+        if (teams.get(user) != event.getChannelJoined() && teams.containsKey(user)) {
+            if (teamchans.containsKey(teams.get(user)))
+                g.getController().moveVoiceMember(event.getMember(), vc).queue();
+            else {
+                System.out.println("[ERROR] Der Channel existiert nicht mehr.");
+                active.remove(vc);
+                teamchans.remove(vc);
+                teams.remove(user);
+            }
 
-            VoiceChannel nvc = (VoiceChannel) g.getController().createVoiceChannel(vc.getName() + " [TEMP] ")
-                    .setBitrate(vc.getBitrate())
-                    .setUserlimit(vc.getUserLimit())
-                    .complete();
-
-            if (vc.getParent() != null)
-                nvc.getManager().setParent(vc.getParent()).queue();
-
-            g.getController().modifyVoiceChannelPositions().selectPosition(nvc).moveTo(vc.getPosition() + 1).queue();
-            g.getController().moveVoiceMember(event.getMember(), nvc).queue();
-            active.add(nvc);
         }
 
         vc = event.getChannelLeft();
@@ -79,10 +77,10 @@ public class teamListener extends ListenerAdapter{
     }
 
     public void onVoiceChannelDelete(VoiceChannelDeleteEvent event) {
-        HashMap<VoiceChannel, Guild> autochans = commands.cmdAutochannel.getAutochannels();
+        HashMap<VoiceChannel, Guild> teamchans = commands.cmdTeam.getTeamchannels();
 
-        if (autochans.containsKey(event.getChannel())) {
-            commands.cmdAutochannel.unsetChan(event.getChannel());
+        if (teamchans.containsKey(event.getChannel())) {
+            commands.cmdTeam.unsetTeamChan(event.getChannel());
         }
     }
 

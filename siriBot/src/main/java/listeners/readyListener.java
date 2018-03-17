@@ -25,7 +25,6 @@ public class readyListener extends ListenerAdapter{
         commands.cmdAutochannel.load(event.getJDA());
         commands.cmdVote.loadPolls(event.getJDA());
 
-
     }
 
 }

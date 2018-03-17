@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import util.STATIC;
 
 import java.awt.*;
 import java.io.*;
@@ -27,6 +28,10 @@ public class cmdTeam implements Command{
         return teams;
     }
 
+    public static VoiceChannel getVchan(int nummer, Guild g) {
+        return g.getVoiceChannels().get(nummer-1);
+    }
+
     public static VoiceChannel getVchan(String id, Guild g) {
         return g.getVoiceChannelById(id);
     }
@@ -35,8 +40,8 @@ public class cmdTeam implements Command{
         return g.getMemberById(name);
     }
 
-    public static User getUser(String name, Guild g) {
-        return g.getMemberById(name).getUser();
+    public static User getUser(String name, MessageReceivedEvent event) {
+        return event.getAuthor();
     }
 
     private static Guild getGuild(String id, JDA jda) {
@@ -59,8 +64,7 @@ public class cmdTeam implements Command{
         else if (teams.containsKey(name))
             error(tc, "Dieses Team gibt es schon.");
         else {
-            VoiceChannel nvc = (VoiceChannel) g.getController().createVoiceChannel(name).setName(name).complete();
-            g.getController().modifyVoiceChannelPositions().selectPosition(nvc).moveTo(9).queue();
+            VoiceChannel nvc = (VoiceChannel) g.getController().createVoiceChannel(name).setName(name + "  [TEAM " + (teamchannels.size()+1) + "]").setParent(g.getCategories().get(2)).complete();
             teamchannels.put(nvc, g);
             active.add(nvc);
             save();
@@ -81,29 +85,27 @@ public class cmdTeam implements Command{
         }
     }
 
-    private void addTeamMember(String name, String teamname, Guild g, TextChannel tc) {
-        User user = getUser(name, g);
-
+    private void addTeamMember(User user, String nummer, Guild g, TextChannel tc) {
+        int anzahl = Integer.parseInt(nummer);
         if (user == null)
             error(tc, "Bitte geben sie den korekkten Namen ein!");
         else if (teams.containsKey(user))
             error(tc, user.getAsMention() + " ist schon in einem Team");
         else {
-            teams.put(user, getVchan(teamname, g));
-            message(tc, user.getAsMention() + " ist nun im Team " + teamname + "!");
+            teams.put(user, getVchan(anzahl, g));
+            message(tc, user.getAsMention() + " ist nun im Team " + anzahl + "!");
         }
     }
 
-    private void removeTeamMember(String name, String teamname, Guild g, TextChannel tc) {
-        User user = getUser(name, g);
-
+    private void removeTeamMember(User user, String nummer, Guild g, TextChannel tc) {
+        int anzahl = Integer.parseInt(nummer);
         if (user == null)
             error(tc, "Bitte geben sie den korekkten Namen ein!");
         else if (!teams.containsKey(user))
             error(tc, user.getAsMention() + " ist in keinem Team");
         else {
-            teams.remove(user, getVchan(teamname, g));
-            message(tc, user.getAsMention() + " ist nun nicht mehr im Team " + teamname + "!");
+            teams.remove(user, getVchan(anzahl, g));
+            message(tc, user.getAsMention() + " ist nun nicht mehr im Team " + anzahl + "!");
         }
     }
 
@@ -207,17 +209,17 @@ public class cmdTeam implements Command{
                     setTeamChan(args[1], g, tc);
                 break;
             case "add":
-                if (args.length < 3)
+                if (args.length < 2)
                     error(tc, help());
                 else
-                    addTeamMember(args[1], args[2], g, tc);
+                    addTeamMember(event.getAuthor(), args[1], g, tc);
                 break;
 
             case "remove":
-                if (args.length < 3)
+                if (args.length < 2)
                     error(tc, help());
                 else
-                    removeTeamMember(args[1], args[2], g, tc);
+                    removeTeamMember(event.getAuthor(), args[1], g, tc);
                 break;
             case "unset":
                 if (args.length < 2)
@@ -241,6 +243,6 @@ public class cmdTeam implements Command{
 
     @Override
     public String help() {
-        return null;
+        return "Hilfe zum Befehl '" + STATIC.PREFIX + "team':\n  - set <NAME>   (Erstellt ein Team)\n  - add <TEAMNUMMER>   (Fügt dich zu einem Team hinzu)\n  - remove <TEAMNUMMER>   (Löscht dich aus einem Team)\n  - unset <NAME>   (Löscht ein Team)";
     }
 }
