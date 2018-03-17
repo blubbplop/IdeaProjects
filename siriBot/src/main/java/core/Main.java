@@ -51,6 +51,7 @@ public class Main {
         commandHandler.commands.put("clear", new cmdClear());
         commandHandler.commands.put("emote", new cmdFun());
         commandHandler.commands.put("autochan", new cmdAutochannel());
+        commandHandler.commands.put("team", new cmdTeam());
         commandHandlerPrivate.commands.put("msg", new cmdMsg());
 
     }
