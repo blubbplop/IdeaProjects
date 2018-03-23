@@ -6,8 +6,8 @@ public class STATIC {
 
     public static final String PREFIX = "/";
 
-    public static final String[] PERMS  = {"Maia", "Elbe", "Zwerg"};
+    public static final String[] PERMS  = {"Owner", "Admin", "Moderator"};
 
-    public static final String[] OWNERPERMS = {"Maia"};
+    public static final String[] OWNERPERMS = {"Owner"};
 
 }
